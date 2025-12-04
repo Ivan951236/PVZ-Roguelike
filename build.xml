@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PepperMint" default="build" basedir=".">
+    <property name="src.dir" value="src/main/java"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="main.class" value="peppermint.Main"/>
+
+    <!-- Define JAR file names -->
+    <property name="loader.jar" value="${dist.dir}/PepperMintLoader.jar"/>
+    <property name="ui.jar" value="${dist.dir}/PepperMintUI.jar"/>
+    <property name="gens.jar" value="${dist.dir}/PepperMintGens.jar"/>
+    <property name="main.jar" value="${dist.dir}/PepperMint.jar"/>
+    <property name="vm.jar" value="${dist.dir}/PepperMintHater.jar"/>
+    <property name="crypto.jar" value="${dist.dir}/PepperMintEncryption.jar"/>
+    <property name="archive.jar" value="${dist.dir}/PepperMintARL.jar"/>
+
+    <!-- Define classpath -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <pathelement path="${gens.jar}"/>
+        <pathelement path="${ui.jar}"/>
+        <pathelement path="${vm.jar}"/>
+        <pathelement path="${crypto.jar}"/>
+        <pathelement path="${archive.jar}"/>
+    </path>
+
+    <!-- Clean build and dist directories -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <!-- Compile Loader Library -->
+    <target name="compile-loader" depends="clean">
+        <mkdir dir="${classes.dir}/loader"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/loader" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/loader/**"/>
+        </javac>
+        <jar destfile="${loader.jar}" basedir="${classes.dir}/loader"/>
+    </target>
+
+    <!-- Compile Generators Library -->
+    <target name="compile-gens" depends="clean">
+        <mkdir dir="${classes.dir}/gens"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/gens" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/gens/**"/>
+        </javac>
+        <jar destfile="${gens.jar}" basedir="${classes.dir}/gens"/>
+    </target>
+
+    <!-- Compile UI Library -->
+    <target name="compile-ui" depends="clean">
+        <mkdir dir="${classes.dir}/ui"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/ui" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/ui/**"/>
+        </javac>
+        <jar destfile="${ui.jar}" basedir="${classes.dir}/ui"/>
+    </target>
+
+    <!-- Compile VM Detection Library -->
+    <target name="compile-vm" depends="clean">
+        <mkdir dir="${classes.dir}/vm"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/vm" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/vm/**"/>
+        </javac>
+        <jar destfile="${vm.jar}" basedir="${classes.dir}/vm"/>
+    </target>
+
+    <!-- Compile Crypto Library -->
+    <target name="compile-crypto" depends="clean">
+        <mkdir dir="${classes.dir}/crypto"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/crypto" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/crypto/**"/>
+        </javac>
+        <jar destfile="${crypto.jar}" basedir="${classes.dir}/crypto"/>
+    </target>
+
+    <!-- Compile Archive Library -->
+    <target name="compile-archive" depends="clean">
+        <mkdir dir="${classes.dir}/archive"/>
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}/archive" 
+               includeantruntime="false"
+               classpathref="classpath">
+            <include name="peppermint/archive/**"/>
+        </javac>
+        <jar destfile="${archive.jar}" basedir="${classes.dir}/archive"/>
+    </target>
+
+    <!-- Compile Main Application -->
+    <target name="compile-main" depends="compile-loader, compile-gens, compile-ui, compile-vm, compile-crypto, compile-archive">
+        <mkdir dir="${classes.dir}/main"/>
+        <javac srcdir="${src.dir}"
+               destdir="${classes.dir}/main"
+               includeantruntime="false"
+               classpathref="classpath">
+            <exclude name="peppermint/loader/**"/>
+            <exclude name="peppermint/gens/**"/>
+            <exclude name="peppermint/ui/**"/>
+            <exclude name="peppermint/vm/**"/>
+            <exclude name="peppermint/crypto/**"/>
+            <exclude name="peppermint/archive/**"/>
+        </javac>
+        <!-- Create a fat JAR that includes all class files from all modules -->
+        <jar destfile="${main.jar}">
+            <fileset dir="${classes.dir}/loader"/>
+            <fileset dir="${classes.dir}/gens"/>
+            <fileset dir="${classes.dir}/ui"/>
+            <fileset dir="${classes.dir}/vm"/>
+            <fileset dir="${classes.dir}/crypto"/>
+            <fileset dir="${classes.dir}/archive"/>
+            <fileset dir="${classes.dir}/main"/>
+            <manifest>
+                <attribute name="Main-Class" value="peppermint.Main"/>
+                <attribute name="Class-Path" value="lib/flatlaf-3.7.jar lib/flatlaf-extras-3.7.jar lib/bcpg-jdk18on-1.83.jar lib/commons-compress-1.28.0.jar PepperMintLoader.jar PepperMintGens.jar PepperMintUI.jar PepperMintHater.jar PepperMintEncryption.jar PepperMintARL.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Build all JAR files -->
+    <target name="build" depends="compile-loader, compile-gens, compile-ui, compile-vm, compile-crypto, compile-archive, compile-main">
+        <echo message="All JAR files built successfully!"/>
+    </target>
+
+    <!-- Run the application -->
+    <target name="run" depends="build">
+        <java classname="peppermint.Main" fork="true">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${main.jar}"/>
+            </classpath>
+        </java>
+    </target>
+</project>

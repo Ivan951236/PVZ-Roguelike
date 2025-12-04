@@ -1,7 +1,7 @@
 # Plants vs. Zombies Roguelike Preset Generator
 
 ## Overview
-This application generates random presets for a Plants vs. Zombies roguelike game. It creates randomized level sequences, planting patterns, and seed slot selections to provide varied gameplay experiences.
+This application generates random presets for a Plants vs. Zombies roguelike game. It creates randomized level sequences, planting patterns, and seed slot selections to provide varied gameplay experiences
 
 ## Features
 - Random level generation across 5 worlds (Day, Night, Pool, Fog, Roof)
@@ -60,7 +60,7 @@ src/
 ```
 
 ## Custom Themes
-The application supports custom themes stored in the JAR Library's `PepperMintThemes` directory. Themes can be packaged as `.pmt` files (tar.xz archives) and may be signed with OpenPGP for security.
+The application supports custom themes stored in the JAR Library's `PepperMintThemes` directory. Themes can be packaged as `.pmt` files (tar.xz archives) and may be signed with OpenPGP for security
 
 Which the intended structure should be:
 
@@ -70,7 +70,7 @@ custom-theme.pmt/
 ├───openpgp-key.asc
 └───theme.toml
 ```
-This is a example with OpenPGP encryption.
+This is a example with OpenPGP encryption
 
 ### Worlds and Levels
 - Day (1-1 to 1-10)
@@ -88,4 +88,4 @@ The application includes various planting patterns with different strategies:
 - And many more with special variations
 
 ### Plant List
-Full list of 49 Plants from the original PvZ game including Peashooter, Sunflower, Wall-nut, etc.
+Full list of 49 Plants from the original PvZ game including Peashooter, Sunflower, Wall-nut, etc

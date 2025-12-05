@@ -1,7 +1,7 @@
 # Plants vs. Zombies Roguelike Preset Generator
 
 ## Overview
-This application generates random presets for a Plants vs. Zombies roguelike game. It creates randomized level sequences, planting patterns, and seed slot selections to provide varied gameplay experiences
+This application generates a random preset for Plants vs. Zombies to play in similar manner as Roguelike games. It creates randomized level sequences, planting patterns, and seed slot selections to provide varied gameplay experiences
 
 ## Features
 - Random level generation across 5 worlds (Day, Night, Pool, Fog, Roof)

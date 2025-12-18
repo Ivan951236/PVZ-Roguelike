@@ -1,0 +1,12 @@
+# PepperMint Theme Configuration
+[theme]
+name = "Gameboy Green (Dark)"
+developer = "Peppermints"
+dark_mode = true
+encrypted = false
+
+[colors]
+primary = "#FFFFFF"
+secondary = "#FFFFFF"
+background = "#FFFFFF"
+foreground = "#FFFFFF"

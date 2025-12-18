@@ -4,6 +4,7 @@ import peppermint.gens.PresetGenerator;
 import peppermint.gens.LevelGenerator;
 import peppermint.gens.PatternGenerator;
 import peppermint.gens.SeedSlotGenerator;
+import peppermint.themes.ThemeManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,7 @@ import javax.swing.SwingUtilities;
 
 public class MainWindow extends JFrame {
     private PresetGenerator presetGenerator;
+    private ThemeManager themeManager;
     private JTextArea outputArea;
     private JComboBox<Integer> levelCountComboBox;
     private JCheckBox endlessModeCheckBox;
@@ -24,21 +26,43 @@ public class MainWindow extends JFrame {
     private JMenuItem themeGlossaryMenuItem;
     private JMenuItem aboutMenuItem;
     private JMenuItem customThemeCreatorMenuItem;
+    private JMenuItem newThemeCreatorMenuItem; // New theme creator using example template
     private JMenuItem toggleThemeMenuItem;
     private JCheckBoxMenuItem themeToggleCheckBox;
     private JMenuItem manageThemesMenuItem;
     private JPanel levelsPanel;
     private JPanel seedSlotsPanel;
 
-    public MainWindow() {
+    public MainWindow(ThemeManager themeManager) {
         this.presetGenerator = new PresetGenerator();
+        this.themeManager = themeManager;
         initializeComponents();
         setupLayout();
         setupEventHandlers();
         setTitle("Plants vs. Zombies Roguelike Preset Generator");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);  // Changed to handle close event properly
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Save the configuration on window close using the provided theme manager
+                try {
+                    themeManager.getConfigManager().saveConfig();
+                    System.out.println("Configuration saved on window close.");
+                } catch (Exception e) {
+                    System.err.println("Error saving configuration on window close: " + e.getMessage());
+                }
+
+                // Exit the application
+                System.exit(0);
+            }
+        });
         setSize(800, 600);
         setLocationRelativeTo(null);
+    }
+
+    // Default constructor for backward compatibility
+    public MainWindow() {
+        this(new ThemeManager());
     }
 
     private void initializeComponents() {
@@ -56,9 +80,15 @@ public class MainWindow extends JFrame {
         themeGlossaryMenuItem = new JMenuItem("Theme Glossary");
         aboutMenuItem = new JMenuItem("About");
         customThemeCreatorMenuItem = new JMenuItem("Custom Theme Creator");
+        newThemeCreatorMenuItem = new JMenuItem("Create New Theme from Template"); // New theme creator using example template
         manageThemesMenuItem = new JMenuItem("Manage Themes");
         toggleThemeMenuItem = new JMenuItem("Toggle Light/Dark Mode");
+
+        // Initialize theme toggle checkbox and set its state based on current theme mode
         themeToggleCheckBox = new JCheckBoxMenuItem("Dark Mode");
+        if (themeManager != null) {
+            themeToggleCheckBox.setSelected("dark".equals(themeManager.getCurrentThemeMode()));
+        }
 
         // Initialize panels (they will be created in setupLayout)
         levelsPanel = new JPanel();
@@ -142,6 +172,7 @@ public class MainWindow extends JFrame {
         // Themes menu
         JMenu themesMenu = new JMenu("Themes");
         themesMenu.add(customThemeCreatorMenuItem);
+        themesMenu.add(newThemeCreatorMenuItem); // New theme creator using example template
         themesMenu.add(manageThemesMenuItem);
         menuBar.add(themesMenu);
 
@@ -158,6 +189,7 @@ public class MainWindow extends JFrame {
         themeGlossaryMenuItem.addActionListener(new ThemeGlossaryActionListener());
         aboutMenuItem.addActionListener(new AboutActionListener());
         customThemeCreatorMenuItem.addActionListener(new CustomThemeCreatorActionListener());
+        newThemeCreatorMenuItem.addActionListener(new NewThemeCreatorActionListener());
         manageThemesMenuItem.addActionListener(new ManageThemesActionListener());
 
         // Theme toggle handler
@@ -268,10 +300,45 @@ public class MainWindow extends JFrame {
         }
     }
 
+    private class NewThemeCreatorActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Create a simple dialog to get the theme name
+            String themeName = JOptionPane.showInputDialog(
+                MainWindow.this,
+                "Enter a name for the new theme:",
+                "Create New Theme",
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (themeName != null && !themeName.trim().isEmpty()) {
+                // Use the existing theme manager to create the new theme
+                boolean success = themeManager.createNewTheme(themeName.trim());
+
+                if (success) {
+                    JOptionPane.showMessageDialog(
+                        MainWindow.this,
+                        "Theme '" + themeName.trim() + "' created successfully!\n" +
+                        "The theme is based on the example template and located in PepperMintThemes directory.",
+                        "Theme Created",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+                } else {
+                    JOptionPane.showMessageDialog(
+                        MainWindow.this,
+                        "Failed to create theme '" + themeName.trim() + "'.\nCheck the console for details.",
+                        "Creation Failed",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        }
+    }
+
     private class ManageThemesActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            ThemeManagerDialog themeManagerDialog = new ThemeManagerDialog(MainWindow.this);
+            ThemeManagerDialog themeManagerDialog = new ThemeManagerDialog(MainWindow.this, themeManager);
             themeManagerDialog.setVisible(true);
         }
     }
@@ -326,23 +393,11 @@ public class MainWindow extends JFrame {
 
     private void toggleTheme() {
         if (themeToggleCheckBox.isSelected()) {
-            // Switch to dark theme
-            try {
-                Class<?> flatDarkLafClass = Class.forName("com.formdev.flatlaf.FlatDarkLaf");
-                Object laf = flatDarkLafClass.getDeclaredConstructor().newInstance();
-                UIManager.setLookAndFeel((javax.swing.LookAndFeel) laf);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            // Switch to dark theme and update settings
+            themeManager.setDarkTheme();
         } else {
-            // Switch to light theme
-            try {
-                Class<?> flatLightLafClass = Class.forName("com.formdev.flatlaf.FlatLightLaf");
-                Object laf = flatLightLafClass.getDeclaredConstructor().newInstance();
-                UIManager.setLookAndFeel((javax.swing.LookAndFeel) laf);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            // Switch to light theme and update settings
+            themeManager.setLightTheme();
         }
 
         SwingUtilities.updateComponentTreeUI(this);
@@ -350,16 +405,13 @@ public class MainWindow extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Setup initial theme - default to light theme if FlatLaf is available
-            try {
-                Class<?> flatLightLafClass = Class.forName("com.formdev.flatlaf.FlatLightLaf");
-                Object laf = flatLightLafClass.getDeclaredConstructor().newInstance();
-                UIManager.setLookAndFeel((javax.swing.LookAndFeel) laf);
-            } catch (Exception e) {
-                // FlatLaf not available, continue with default L&F
-            }
+            // Initialize theme manager
+            ThemeManager themeManager = new ThemeManager();
 
-            MainWindow mainWindow = new MainWindow();
+            // Apply current theme
+            themeManager.applyCurrentTheme();
+
+            MainWindow mainWindow = new MainWindow(themeManager);
             mainWindow.setVisible(true);
         });
     }

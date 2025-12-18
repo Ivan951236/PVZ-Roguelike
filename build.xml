@@ -129,6 +129,7 @@
             <fileset dir="${classes.dir}/crypto"/>
             <fileset dir="${classes.dir}/archive"/>
             <fileset dir="${classes.dir}/main"/>
+            <fileset dir="src/main/resources"/>
             <manifest>
                 <attribute name="Main-Class" value="peppermint.Main"/>
                 <attribute name="Class-Path" value="lib/flatlaf-3.7.jar lib/flatlaf-extras-3.7.jar lib/bcpg-jdk18on-1.83.jar lib/commons-compress-1.28.0.jar PepperMintLoader.jar PepperMintGens.jar PepperMintUI.jar PepperMintHater.jar PepperMintEncryption.jar PepperMintARL.jar"/>

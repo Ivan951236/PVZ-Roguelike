@@ -1,0 +1,7 @@
+# PepperMint Theme Manifest
+[manifest]
+name = "Gameboy Green (Dark)"
+author = "Peppermints"
+version = "1.0"
+type = "theme"
+encryption = false

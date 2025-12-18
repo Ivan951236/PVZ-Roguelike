@@ -27,18 +27,23 @@ public class Main {
         ThemeManager themeManager = new ThemeManager();
         themeManager.applyCurrentTheme();
 
+        // Register shutdown hook to save configuration
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                // Save the configuration when the application shuts down
+                themeManager.getConfigManager().saveConfig();
+                System.out.println("Configuration saved on shutdown.");
+            } catch (Exception e) {
+                System.err.println("Error saving configuration on shutdown: " + e.getMessage());
+            }
+        }));
+
         // Create and show the main window
         SwingUtilities.invokeLater(() -> {
-            // Set FlatLaf theme if available
-            try {
-                Class<?> flatLightLafClass = Class.forName("com.formdev.flatlaf.FlatLightLaf");
-                Object laf = flatLightLafClass.getDeclaredConstructor().newInstance();
-                UIManager.setLookAndFeel((javax.swing.LookAndFeel) laf);
-            } catch (Exception e) {
-                // FlatLaf not available, continue with default L&F
-            }
+            // Apply the theme again to ensure it's properly set
+            themeManager.applyCurrentTheme();
 
-            MainWindow mainWindow = new MainWindow();
+            MainWindow mainWindow = new MainWindow(themeManager);
             mainWindow.setVisible(true);
         });
     }

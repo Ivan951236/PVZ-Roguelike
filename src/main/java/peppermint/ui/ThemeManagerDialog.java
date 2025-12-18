@@ -20,15 +20,20 @@ public class ThemeManagerDialog extends JDialog {
     private JButton refreshButton;
     private ThemeManager themeManager;
 
-    public ThemeManagerDialog(Frame parent) {
+    public ThemeManagerDialog(Frame parent, ThemeManager themeManager) {
         super(parent, "Theme Manager", true);
-        this.themeManager = new ThemeManager();
+        this.themeManager = themeManager;
         initializeComponents();
         setupLayout();
         setupEventHandlers();
         loadThemes();
         setSize(500, 400);
         setLocationRelativeTo(parent);
+    }
+
+    // Default constructor for backward compatibility
+    public ThemeManagerDialog(Frame parent) {
+        this(parent, new ThemeManager());
     }
 
     private void initializeComponents() {

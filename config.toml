@@ -1,0 +1,4 @@
+# Application Configuration File
+[main]
+current_theme = "Gameboy Green (Dark)"
+current_theme_mode = "dark"
